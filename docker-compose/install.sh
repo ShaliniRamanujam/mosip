@@ -4,7 +4,7 @@ install_sunbird_rc() {
   cd ./docker-compose-sunbird
   echo "Installing Sunbird RC"
   bash setup_vault.sh docker-compose.yml vault
-  docker compose up -d
+  docker-compose up
   cd ..
 }
 
@@ -12,14 +12,23 @@ install_certify() {
   read -p "Please update the properties and press enter: " choice
   echo "Installing certify"
   cd ./docker-compose-certify
-  docker compose up -d
+  docker-compose up
   cd ..
+}
+
+initial_setup() {
+  echo "Git url: "
+  read  GIT_URL
+  cd ./docker-compose-sunbird
+  VALUE=$(sed -n "16p" .env | awk -F '=' '{print $2}')
+  sed -i '' "s|^WEB_DID_BASE_URL=.*$|WEB_DID_BASE_URL=${GIT_URL}|" .env
 }
 
 display_menu() {
     echo "Select which services to install: "
     echo "1. Sunbird RC"
     echo "2. Certify"
+    echo "3. Initial Setup"
     echo "0. Exit"
 }
 
@@ -36,6 +45,9 @@ handle_input() {
             ;;
         2)
             install_certify
+            ;;
+        3)
+            initial_setup
             ;;
         0)
             echo "Exiting..."

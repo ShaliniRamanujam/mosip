@@ -104,7 +104,7 @@ services:
       - active_profile_env=default,mock-identity
       - SPRING_CONFIG_NAME=certify
       - SPRING_CONFIG_LOCATION=/home/mosip/config/
-#      - enable_certify_artifactory=false
+#     - enable_certify_artifactory=false
 #      - download_hsm_client=true
     volumes:
       - ./config/certify-default.properties:/home/mosip/config/certify-default.properties
