@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: docker-compose/docker-compose-sunbird/setup_vault.sh
+  checksum: beee202e67ddf40b58ec627ea69a5f72a32030f8cbd18ae497095c5b0c116526
+version: ""

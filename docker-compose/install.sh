@@ -20,8 +20,7 @@ initial_setup() {
   echo "Git url: "
   read  GIT_URL
   cd ./docker-compose-sunbird
-  VALUE=$(sed -n "16p" .env | awk -F '=' '{print $2}')
-  sed -i '' "s|^WEB_DID_BASE_URL=.*$|WEB_DID_BASE_URL=${GIT_URL}|" .env
+  sed -i "s|^WEB_DID_BASE_URL=.*$|WEB_DID_BASE_URL=${GIT_URL}|" .env
 }
 
 display_menu() {
