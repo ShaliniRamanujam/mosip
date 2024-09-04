@@ -122,8 +122,17 @@ sed -i -e 's|\(mosip.esignet.vciplugin.sunbird-rc.credential-type\.[^.]*\.static
 SCHEMA_ID=$(jq -r ".schema.id" responseSchema.json)
 sed -i -e 's|\(mosip.esignet.vciplugin.sunbird-rc.credential-type\.[^.]*\.cred-schema-id=\)[^ ]*|\1'$SCHEMA_ID'|g' ./docker-compose/docker-compose-certify/config/esignet-sunbird-insurance.properties
 cd docker-compose
-./destroy.sh
+#./destroy.sh
 ./install.sh < 2
+cd ../docs/postman-collections/
+jq '.values[] |= if .key == "aud" then .value = "http://localhost:8088/v1/esignet/oauth/v2/token" else . end' inji-certify-with-sunbird-insurance.postman_environment.json > temp.json && mv temp.json inji-certify-with-sunbird-insurance.postman_environment.json
+jq '.values[] |= if .key == "audUrl" then .value = "http://localhost:8090" else . end' inji-certify-with-sunbird-insurance.postman_environment.json > temp.json && mv temp.json inji-certify-with-sunbird-insurance.postman_environment.json
+isoTimestamp=$(date --iso-8601=seconds)
+clientId=$(jq -r '.values[] | select(.key == "clientId") | .value' inji-certify-with-sunbird-insurance.postman_environment.json)
+redirectionUrl="http://localhost:3001"
+url=$(jq -r '.values[] | select(.key == "url") | .value' inji-certify-with-sunbird-insurance.postman_environment.json)
+curl --location 'http://localhost:8088/v1/esignet/oauth/.well-known/jwks.json' --header 'Cookie: XSRF-TOKEN=e4f2335a-5294-4abc-894f-22894f26424d' -o publicKey.json
+
 
 
 
