@@ -1,6 +1,7 @@
 sed -i "/^  esignet:/,/^  [^ ]/s/   - active_profile_env=.*$/   - active_profile_env=default,mock-identity/" docker-compose.yml
 sed -i "/^  certify:/,/^  [^ ]/s/   - active_profile_env=.*$/   - active_profile_env=default,mock-identity/" docker-compose.yml
 ./install.sh > 2
+mkdir postman_responses
 cd ../docs/postman-collections/
 clientId=$(jq -r '.values[] | select(.key == "clientId") | .value' inji-certify-with-mock-identity.postman_environment.json)
 redirectionUrl=$(jq -r '.values[] | select(.key == "redirectionUrl") | .value' inji-certify-with-mock-identity.postman_environment.json)
@@ -179,3 +180,97 @@ curl --location 'http://localhost:8088/v1/esignet/authorization/v2/oauth-details
         "codeChallengeMethod" : "'"$codeChallengeMethod"'"
     }
 }' -o ../../mockAuthorizeResponse.json
+
+curl --location 'http://localhost:8088/v1/esignet/csrf/token' \
+--header 'Cookie: XSRF-TOKEN=12462981-e4d9-49cd-a94f-1ec41ffa8f1d' \
+-o ../../postman_responses/csrfToken.json
+
+csrfToken=$(jq -r '.token' ../../postman_responses/csrfToken.json)
+
+isoTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+curl --location 'http://localhost:8088/v1/esignet/authorization/v2/oauth-details' \
+--header 'X-XSRF-TOKEN: $csrfToken' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: XSRF-TOKEN=$csrfToken' \
+--data '{
+    "requestTime": "'"$isoTimestamp"'",
+    "request": {
+        "clientId": "'"$clientId"'",
+        "scope": "sunbird_rc_insurance_vc_ldp",
+        "responseType": "code",
+        "redirectUri": "'"$redirectionUrl"'",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:knowledge",
+        "nonce" : "$nonce",
+        "state" : "$state",
+        "claimsLocales" : "en",
+        "codeChallenge" : "$codeChallenge",
+        "codeChallengeMethod" : "'"$codeChallengeMethod"'"
+    }
+}' \
+-o ../../postman_responses/mockAuthorizeRequest.json
+
+transactionId=$(jq -r '.response.transactionId' ../../postman_responses/mockAuthorizeRequest.json)
+
+individualId="8267411571"
+responseData=$(jq -c '.response' ../../postman_responses/mockAuthorizeRequest.json)
+echo -n "$responseData" | openssl dgst -sha256 -binary | base64 | tr '+/' '-_' | tr -d '=' > hash.txt
+oauthHash=$(cat hash.txt)
+
+isoTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+ curl --location 'http://localhost:8088/v1/esignet/authorization/send-otp' --header "X-XSRF-TOKEN: $csrfToken" --header "oauth-details-key: $transactionId" --header "oauth-details-hash: $oauthHash" --header 'Content-Type: application/json' --header "Cookie: XSRF-TOKEN=$csrfToken" --data '{
+    "requestTime": "'"$isoTimestamp"'",
+    "request": {
+        "transactionId": "'"$transactionId"'",
+        "individualId": "'"$individualId"'",
+        "otpChannels" : ["email","phone"],
+        "captchaToken" : "dummy"
+    }
+}' \
+-o ../../postman_responses/sendOTP.json
+
+isoTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+
+curl --location 'http://localhost:8088/v1/esignet/authorization/v3/authenticate' \
+--header "X-XSRF-TOKEN: $csrfToken" \
+--header "oauth-details-key: $transactionId" \
+--header "oauth-details-hash: $oauthHash" \
+--header 'Content-Type: application/json' \
+--header "Cookie: XSRF-TOKEN=$csrfToken" \
+--data '{
+    "requestTime": "'"$isoTimestamp"'",
+    "request": {
+        "transactionId": "'"$transactionId"'",
+        "individualId": "'"$individualId"'",
+        "challengeList" : [
+            {
+                "authFactorType" : "OTP",
+                "challenge" : "111111",
+                "format" : "alpha-numeric"
+            }
+        ]
+    }
+}' \
+-o ../../postman_responses/authenticateUser.json
+
+
+curl --location 'http://localhost:8088/v1/esignet/authorization/auth-code' \
+--header "X-XSRF-TOKEN: $csrfToken" \
+--header "oauth-details-key: $transactionId" \
+--header "oauth-details-hash: $oauthHash" \
+--header 'Content-Type: application/json' \
+--header "Cookie: XSRF-TOKEN=$csrfToken" \
+--data '{
+    "requestTime": "'"$isoTimestamp"'",
+    "request": {
+        "transactionId": "'"$transactionId"'",
+        "acceptedClaims": [],
+        "permittedAuthorizeScopes" : []
+    }
+}' \
+-o ../../postman_responses/authorizeCode.json
+
+codeToken=$(jq -r '.response.code' ../../postman_responses/authorizeCode.json)
+
