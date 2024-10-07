@@ -314,3 +314,15 @@ codeToken=$(authorization_code);
 
 echo $codeToken;
 
+client_assertion="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjgyODAxMTUsIm5iZiI6MTcyODI4MDExNSwiZXhwIjoxNzI4MzQwMTIwLCJqdGkiOiI1enN4cW9pVG11emIzdkxWYXVfSGwiLCJzdWIiOiIzeXo3LWozeFJ6VTNTT0Rkb05nU0d2T19jRDhVaWpIM0FJV1JEQWcxeC1NIiwiaXNzIjoiM3l6Ny1qM3hSelUzU09EZG9OZ1NHdk9fY0Q4VWlqSDNBSVdSREFnMXgtTSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4OC92MS9lc2lnbmV0L29hdXRoL3YyL3Rva2VuIn0.EvT5tEJ20FExh0rL2rMhhLJFayW0vOaxeuz6liOK_iSTt1xl7e2fkvat3ERTTTvuZ5D73_H_uRq244VEiOKcEb3OVpEkFewF3R50Ov-PI3WR-TGznVh4_8CePayGbTapcWZ4QWQFmYBkVm5LejuolfkFfXlm7dq5eQX3GiKyoCzM2SiVa8_jOZTTOIfZOz_KWTO51de-Qs7jTKs4dXLw8dDOVnIFo1Y68iGW_Ve2mExLuueN54yN5vlvWiw3YNZLxoV2Du91483zWd4G3cOK7Vi8IWT4D0Q3hv3NeVsVPrIg8ijz6fWt0ScbGWl0fJ4jeAANq1aFIo21FrrIkC964A"
+curl --location 'http://localhost:8088/v1/esignet/oauth/v2/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--header "Cookie: XSRF-TOKEN=$csrfToken" \
+--data-urlencode "code=$codeToken" \
+--data-urlencode 'client_id=3yz7-j3xRzU3SODdoNgSGvO_cD8UijH3AIWRDAg1x-M' \
+--data-urlencode 'redirect_uri=http://localhost:3001' \
+--data-urlencode 'grant_type=authorization_code' \
+--data-urlencode 'client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer' \
+--data-urlencode "client_assertion=$client_assertion" \
+--data-urlencode "code_verifier=$codeVerifier"
+
