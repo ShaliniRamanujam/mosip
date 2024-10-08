@@ -8,9 +8,13 @@ get_csrf_token(){
 }
 
 create_oidc_client(){
-  length=${1:-32}
-  codeVerifier=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c "$length")
-  codeChallenge=$(echo -n "$codeVerifier" | openssl dgst -sha256 -binary | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+#  length=${1:-32}
+#  codeVerifier=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c "$length")
+#  codeChallenge=$(echo -n "$codeVerifier" | openssl dgst -sha256 -binary | base64 | tr -d '=' | tr '+/' '-_' | tr -d '\n')
+
+  codeVerifier=$(openssl rand -base64 60 | tr -d "\n" | tr '/+' '_-' | tr -d '=')
+  codeChallenge=$(printf $code_verifier | shasum -a 256 | head -c 64 | xxd -r -p - | openssl base64 | tr '/+' '_-' | tr -d '=')
+
   codeChallengeMethod="S256"
 
   #redirectionUrl=$(jq -r '.values[] | select(.key == "redirectionUrl") | .value' inji-certify-with-mock-identity.postman_environment.json)
