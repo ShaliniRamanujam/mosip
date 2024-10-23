@@ -24,27 +24,9 @@ create_oidc_client(){
   relayingPartyId=$(jq -r '.values[] | select(.key == "relayingPartyId") | .value' inji-certify-with-mock-identity.postman_environment.json)
   clientName="https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/597.jpg"
 
-  #curl --location 'http://localhost:8088/v1/esignet/oauth/.well-known/jwks.json' --header 'Cookie: XSRF-TOKEN=679a9380-6d1f-4665-90b8-1ad1ca9d2781' -o ../../output.json
-  #publicKey=$(jq '.keys[0]' ../../output.json)
 
-  privateKey_jwt='{
-    "kty": "RSA",
-    "n": "nBngN0_E_y4WQzO3sKvTRLhopLOfAwC-pPk30X-sBJ_Opje6byiIHvya-8L382sWUNQotpGNKNbfSfBJJuYmbrGb3CUFBBVfpnFbJN1dyecAHtL7GIbcvWDYZwE7eD4lf3g0aCRp2rrPzptY8fh7if5_yfqV_ekVIhfUNmBci06wosqroFPe5ypuFTToNPLHjRHNNATZPG_KytUw0wBSSBpdE9RqEu4fFu3DqLQZ7Yp8WOT7V8mNcqEz1XyJ-SzMw_xmluPVZZKbiJW3c-kR13kP-xejj0dchH9W9f-WtvLEp15cOaN_oGoHRv_ETdS8YlwqsW_5zimuGctbHUqNoQ",
-    "e": "AQAB",
-    "d": "MNBuqx1IzzuMPquXj6nLwTuhjY-V9AxxkYlViS_RjQikSJo4tLYKCxaXKI-JlhcwvUn7CUxuxgyberWnSoDCF-92e9sfvG0qohPkmpyWzaJtCTaUytCxio8UXPGntSxJ8ZiXWtG4QGwWu9ccc15u03JAZ9ryuJoAv86P0AlGJ1GNvtQQ_HvxFRoGlJ-ZbVULE-BzeMSceH7WXjrzDEcvl85lxEFKHtd8Shc-4xpifcO7EDKOEm6fjFIfwspEHPwJekUqQfDiCzruol3tiSdEfXS-v-7-Kolw3jZ0eXforS6RM7YEm2RfE11ZNVol8xeQweIz2AF2XskBSHfMaLtzOQ",
-    "p": "_GH4UCjQdtLF094HbOW3uenUMwhEPfDAqfVC3PKlmPv5dVw59781dc3ldsVEeD_8D5IHu0eCuQS3zCRWi-6-TJQM4Cf2fzCKhR5id4QAE1RLlYlc7BOQWSkWIbJKV-w2FE9zI328VtiTvBxlQkly78TWGwMM_k0Ai5XZPRNE0Ic",
-    "q": "nlaiV6meEZnJtlaUNfhiWKZekBZqeZrWsL9ezAEBD80D-vIma9RwMljNbalihUU_99uODQ-kt0Mx7fBUcwUoivN4DNpDs_EQ27a3Qr8ojiFUP80FKiLBcDyqWt1fhu3Ska-X-XwPM3oCjmL_f2Df9wSqiit8HE3UHfmgdlJ5gpc",
-    "dp": "ATSSlAdt33NoQHfJ_0olk3y7Z7b9ZHJW6Tjjpdx-z_k8GsRi_nzqS3K9StDsX8qmcIiZAtr3k9yi6BWwWCC-xezbFuL5-WeI8dPQUpPN0EnRxpgOWo5JXTOmCGkqk7rsEzLB8QRzttJ3-ikEjsl9BAojn6NnF3vUqdYAYJtL89c",
-    "dq": "WOAkC7SnhxWdhX2ff5PGECCCX7pVVaC19UvVuAiwQeA_5bHaIxiBSaFS3cUACfJO758LYwVu3XcYJYiKvm0czrHOptg0vGIJpmou_4YxC2Zl1dIMnhQYJBnJPWuY3THMyf2X_m_GUIyhtq6W3zbPP-Ycm6XA6lo9P_4INaIhlk0",
-    "qi": "L9VU-TKmus1j0xrJkBmakm0kKHbgHjhOodSbKm6NhkumOF7GbP6Zxmbhn5_JJWj2NttbSfFMTvHc5cEJUG0D3O11ktZTQ7CbdGlPaZ2X2vDeaLG8as8Q5AxBzU8VAtGcl97aOhTcb5OcOvZzJ6lmsTUXJLsr10rjaJ-cqkL9cac"
-  }'
 
-  publicKey_jwt='{
-    "kty": "RSA",
-    "n": "nBngN0_E_y4WQzO3sKvTRLhopLOfAwC-pPk30X-sBJ_Opje6byiIHvya-8L382sWUNQotpGNKNbfSfBJJuYmbrGb3CUFBBVfpnFbJN1dyecAHtL7GIbcvWDYZwE7eD4lf3g0aCRp2rrPzptY8fh7if5_yfqV_ekVIhfUNmBci06wosqroFPe5ypuFTToNPLHjRHNNATZPG_KytUw0wBSSBpdE9RqEu4fFu3DqLQZ7Yp8WOT7V8mNcqEz1XyJ-SzMw_xmluPVZZKbiJW3c-kR13kP-xejj0dchH9W9f-WtvLEp15cOaN_oGoHRv_ETdS8YlwqsW_5zimuGctbHUqNoQ",
-    "e": "AQAB",
-    "kid": "UgEY6L5zrUcfHwBhx4tkHoE5yCyCPHaGRtTi3E2Hy-I"
-  }'
+  #public key and private keys are generated
 
   isoTimestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
   curl --location 'http://localhost:8088/v1/esignet/client-mgmt/oidc-client' \
@@ -286,7 +268,7 @@ sed -i "/^  esignet:/,/^  [^ ]/s/   - active_profile_env=.*$/   - active_profile
 sed -i "/^  certify:/,/^  [^ ]/s/   - active_profile_env=.*$/   - active_profile_env=default,mock-identity/" docker-compose.yml
 
 ./install.sh > 2
-
+cd ..
 mkdir postman_responses
 cd docs/postman-collections/
 
